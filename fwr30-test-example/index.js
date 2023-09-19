@@ -1,4 +1,7 @@
+const AWS = require('aws-sdk');
+
 module.exports.handler = async (event) => {
+  console.log("event stringified is ", JSON.stringify(event));
   return {
     statusCode: 200,
     body: JSON.stringify(
