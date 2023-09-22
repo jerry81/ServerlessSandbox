@@ -7,5 +7,13 @@ provider:
   region: cn-north-1
 
 functions:
-  function1:
+  testtrigger:
     handler: index.handler
+    name: testingTriggerInputs
+    description: blahblahblah
+    events:
+      - iot:
+          name: triggerEggs
+          sql: "SELECT *, clientid() AS clientId, topic(3) AS serial_number, topic() AS iot_topic FROM 'mc/faggot/#'"
+          enabled: true
+          sqlVersion: '2016-03-23'
