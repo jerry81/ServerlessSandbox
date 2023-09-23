@@ -14,7 +14,7 @@ module.exports.handler = async (event, context) => {
   console.log("event stringified is ", JSON.stringify(event));
   console.log("context stringified is ", JSON.stringify(context));
   const sn = event?.serial_number;
-  let shadowToSave = { serial_number };
+  let shadowToSave = { serial_number:sn };
 
   const dat = event?.data;
   const mea = dat?.meas;
