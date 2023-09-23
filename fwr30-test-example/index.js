@@ -1,57 +1,4 @@
-const AWS = require('aws-sdk');
-
-
-const measurementMap = [
-  {
-    key: 'd',
-    name: 'distance',
-    unit: 'millimetre',
-    type: 'measurement',
-  },
-  {
-    key: 'l',
-    name: 'level',
-    unit: 'percent',
-    type: 'measurement',
-  },
-  {
-    key: 'ld',
-    name: 'level_distance',
-    unit: 'millimetre',
-    type: 'measurement',
-  },
-  {
-    key: 'q',
-    name: 'signal_quality',
-    unit: 'other',
-    type: 'measurement',
-  },
-  {
-    key: 'te',
-    name: 'temperature',
-    unit: 'degree_celsius',
-    type: 'measurement',
-  },
-  {
-    key: 'a',
-    name: 'angle',
-    unit: 'degree_angular',
-    type: 'measurement',
-  },
-  {
-    key: 'bat',
-    name: 'battery',
-    unit: 'other',
-    type: 'battery',
-  },
-  {
-    key: 'rssi',
-    name: 'rssi',
-    unit: 'decibel_milliwatt',
-    type: 'rssi',
-  },
-];
-
+const AWS = require("aws-sdk");
 /*
 
 {
@@ -67,22 +14,35 @@ module.exports.handler = async (event, context) => {
   console.log("event stringified is ", JSON.stringify(event));
   console.log("context stringified is ", JSON.stringify(context));
   const sn = event?.serial_number;
-  let shadowToSave = {serial_number};
+  let shadowToSave = { serial_number };
 
-  const dat = event?.data
-  const mea = dat?.meas
-  const stat = dat?.status
-  let props = { distance: mea[0]['d'], battery: stat['bat']};
+  const dat = event?.data;
+  const mea = dat?.meas;
+  const stat = dat?.status;
+  let props = { distance: mea[0]["d"], battery: stat["bat"] };
 
-  shadowToSave['properties'] = props;
-  const iotData = new AWS.IotData({ endpoint: "axujhlqgnr4ft.ats.iot.cn-north-1.amazonaws.com.cn" });
+  shadowToSave["properties"] = props;
+  const iotDataClient = new AWS.IotData({
+    endpoint: "axujhlqgnr4ft.ats.iot.cn-north-1.amazonaws.com.cn",
+  });
 
-  iotData
+  const params = {
+    thingName: sn,
+    payload: JSON.stringify(shadowToSave),
+  };
+  try {
+    const res = await iotDataClient.updateThingShadow(params);
+    console.out("res of update shadow is ", res);
+  } catch (e) {
+    console.error("error while updating shadow ", e);
+  }
   return {
     statusCode: 200,
     body: JSON.stringify(
       {
-        message: `check shadow - should be updated with ${JSON.stringify(shadowToSave)}`,
+        message: `check shadow - should be updated with ${JSON.stringify(
+          shadowToSave
+        )}`,
         input: event,
       },
       null,
