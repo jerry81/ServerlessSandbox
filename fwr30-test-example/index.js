@@ -14,21 +14,29 @@ module.exports.handler = async (event, context) => {
   console.log("event stringified is ", JSON.stringify(event));
   console.log("context stringified is ", JSON.stringify(context));
   const sn = event?.serial_number;
-  let shadowToSave = { 'serial_number':sn };
+  let shadowToSave = { serial_number: sn };
 
   const dat = event?.data;
   const mea = dat?.meas;
   const stat = dat?.status;
-  let props = { 'distance': mea[0]["d"], 'battery': stat["bat"] };
+  let props = { distance: mea[0]["d"], battery: stat["bat"] };
 
-  shadowToSave["properties"] = props;
   const iotDataClient = new AWS.IotData({
     endpoint: "axujhlqgnr4ft.ats.iot.cn-north-1.amazonaws.com.cn",
   });
 
+  const payloadRaw = {
+    serial_number: sn,
+    state: {
+      reported: {
+        test: props,
+      },
+    },
+  };
+
   const params = {
     thingName: sn,
-    payload: JSON.stringify(shadowToSave),
+    payload: JSON.stringify(payloadRaw),
   };
   try {
     await iotDataClient.updateThingShadow(params).promise();
@@ -40,7 +48,7 @@ module.exports.handler = async (event, context) => {
     body: JSON.stringify(
       {
         message: `check shadow - should be updated with ${JSON.stringify(
-          shadowToSave
+          payloadRaw
         )}`,
         input: event,
       },
