@@ -31,8 +31,7 @@ module.exports.handler = async (event, context) => {
     payload: JSON.stringify(shadowToSave),
   };
   try {
-    const res = await iotDataClient.updateThingShadow(params);
-    console.log("res of update shadow is ", res);
+    await iotDataClient.updateThingShadow(params).promise();
   } catch (e) {
     console.error("error while updating shadow ", e);
   }
